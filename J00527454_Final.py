@@ -1,7 +1,7 @@
 """
 Final Project (Python)
 Gregory White - J00527454
-Today's Date 7/30/20
+Today's Date: 7/30/20
 Due Date: 7/31/20
 """
 
