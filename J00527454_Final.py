@@ -1,8 +1,9 @@
-'''
+"""
 Final Project (Python)
 Gregory White - J00527454
 Due Date: 7/31/20
-'''
+***You can access this code through GitHub
+"""
 
 # import the sqlite3 database
 import sqlite3
@@ -18,7 +19,6 @@ female_total_BMI = 0.0
 male_total_BMI = 0.0
 female_total_CPA = 0.0
 male_total_CPA = 0.0
-
 
 # function to convert metric kilograms to english pounds
 def kgToPounds(kg):
@@ -39,10 +39,9 @@ def getBMI(heightCm, weightKg):
 
 
 # function to calculate and return the CPA
-def getCPA(chDiam, chDepth, bitDiam, wristGirt, ankGirt, ht):
-    cpa = -110 + (1.34 * chDiam) + (1.54 * chDepth)
-    cpa += (1.2 * bitDiam) + (1.11 * wristGirt)
-    cpa += (1.15 * ankGirt) + (0.177 * ht)
+def getCPA(ChestDiam, ChestDepth, BitroDiam, wristGirth, AnkleGirth, heightInCm):
+    cpa = -110 + (1.34 * ChestDiam) + (1.54 * ChestDepth) + (1.2 * BitroDiam) + \
+          (1.11 * wristGirth) + (1.15 * AnkleGirth) + (0.177 * heightInCm)
 
     return cpa
 
@@ -65,7 +64,7 @@ def updateTotals(wt, ht, gnd, chDia, chDept, bitDia, wriGirt, ankGirt):
         female_total_weight += wt
         female_total_BMI += getBMI(ht, wt)
         female_total_CPA += getCPA(chDia, chDept, bitDia, wriGirt, ankGirt, ht)
-    else:  # male
+    else:
         num_males += 1
         male_total_height += ht
         male_total_weight += wt
@@ -74,13 +73,13 @@ def updateTotals(wt, ht, gnd, chDia, chDept, bitDia, wriGirt, ankGirt):
 
     return
 
-# function to print the formatted info for one respondent
+
 def printOne(num, wt, ht, gend, chDiam, chDep, bitDia, wristGirt, ankGirt):
     # Respondent info
     print("Respondent #:", end="")
     print(num)
-    print("Weight: {:.2f} (lbs.)".format(kgToPounds(wt)))
-    print("Height: {:.2f} (inches)".format(cmToInches(ht)))
+    print("Weight: {:.2f}".format(kgToPounds(wt)))
+    print("Height: {:.2f}".format(cmToInches(ht)))
     print("Sex: ", end="")
     if gend == 0:
         print("Female")
@@ -91,13 +90,11 @@ def printOne(num, wt, ht, gend, chDiam, chDep, bitDia, wristGirt, ankGirt):
     print("----------")
 
 
-# function to print the formatted averages for each of the needed values
 def printAverages():
     # Averages
     print('\033[1m' + 'Averages')  # the following two line of cold will Bold the word "Averages"
     print('\033[0m', end="")
     print("_________")
-    totalPpl = num_males + num_females
 
     print("Sex-->Females: {0} | Males: {1} | Total: {2}".format(num_females, num_males, num_females + num_males))
     if num_females == 0:
@@ -109,7 +106,7 @@ def printAverages():
     else:
         newMVal = cmToInches(male_total_height) / num_males
 
-    totalTotal = cmToInches(female_total_height + male_total_height) / totalPpl
+    totalTotal = cmToInches(female_total_height + male_total_height) / (num_females + num_males)
 
     print("Height-->Females: {:.2f} | Males: {:.2f} | Overall: {:.2f} (inches)".format(newFVal, newMVal, totalTotal))
     if num_females == 0:
@@ -145,21 +142,21 @@ def printAverages():
     return
 
 
+
+
 # main
 sqliteConnection = ''
 cursor = ''
 
+
 try:
-    # connect to the database
     sqliteConnection = sqlite3.connect('datafile.db')
     cursor = sqliteConnection.cursor()
 
-    # query the database
     sqlite_select_Query = "SELECT * FROM dimensions;"
     cursor.execute(sqlite_select_Query)
     rows = cursor.fetchall()
     i = 1
-    # loop through the rows returned form the query
     for row in rows:
         weightInKg = row[22]
         heightInCm = row[23]
@@ -167,24 +164,23 @@ try:
         ChestDiam = row[4]
         ChestDepth = row[3]
         BitroDiam = row[2]
-        wristGirth = row[20]
-        AnkleGirth = row[19]
-
+        wristGirth = row[6]
+        AnkleGirth = row[8]
         # print info for this person
         printOne(i, weightInKg, heightInCm, gender, ChestDiam, ChestDepth, BitroDiam, wristGirth, AnkleGirth)
 
         # add their info to the totals
         updateTotals(weightInKg, heightInCm, gender, ChestDiam, ChestDepth, BitroDiam, wristGirth, AnkleGirth)
 
-        i += 1  # increment the counter
+        i += 1
 
 except sqlite3.Error as error:
     print("Error while connecting to sqlite", error)
 finally:
-    if sqliteConnection:  # if the database connection is open, then close it
+    if sqliteConnection:
         cursor.close()
         sqliteConnection.close()
+        #  print("The SQLite connection is closed")
 
 
-# print the averages at the end of the output
 printAverages()
